@@ -1,0 +1,53 @@
+services:
+  client:
+    build:
+      context: ./client
+    container_name: client
+    working_dir: /app
+    ports:
+      - 8081:8081
+    stdin_open: true
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    restart: always
+    depends_on:
+      - server
+    networks:
+      - react-express
+
+  server:
+    restart: always
+    build:
+      context: ./server
+    container_name: server
+    working_dir: /app
+    ports:
+      - 5000:5000
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+      - ./server/.env:/app/.env
+    depends_on:
+      - mongo
+    networks:
+      - express-mongo
+      - react-express
+
+  mongo:
+    restart: always
+    image: mongo
+    container_name: mongo-1
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - express-mongo
+
+networks:
+  react-express:
+  express-mongo:
+
+volumes:
+  mongo_data:
